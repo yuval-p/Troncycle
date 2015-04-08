@@ -7,10 +7,13 @@ pygame.init()
 
 
 #settings
-screenSize = [1000,1000]
+screenSize = [1920,1080]
 numOfTurns = 5
 player1Color = [(0, 0, 255),(255, 0,0)]
 player2Color = [(255, 0,0),(0, 0, 255)]
+
+background = 'tron-backgrounds.jpg'
+background_menu = 'tron-menus.jpg'
 
 
 END_GAME = 1
@@ -18,8 +21,9 @@ QUIT = 2
 NEW_GAME = 3
 
 myfont = pygame.font.SysFont("monospace", 30)
+maenuFont = pygame.font.SysFont("monospace", 70)
 
-screen = pygame.display.set_mode(screenSize)
+screen = pygame.display.set_mode(screenSize,pygame.FULLSCREEN)
 
 # TODO change to the sensors input..
 def keyPress(sensor1,sensor2):
@@ -83,8 +87,8 @@ class Sensors():
 
 class Bike():
     def __init__(self,colors,sensors):
-        self.xdir = random.uniform(1,screenSize[0])
-        self.ydir = random.uniform(1,screenSize[1])
+        self.xdir = random.uniform(100,screenSize[0]-100)
+        self.ydir = random.uniform(100,screenSize[1]-100)
         self.prev_pos = []
         self.headcolor = colors[0]
         self.bodydcolor = colors[1]
@@ -94,8 +98,8 @@ class Bike():
     def reset(self):
         self.prev_pos = []
         self.sensors.reset()
-        self.xdir = random.uniform(1,screenSize[0])
-        self.ydir = random.uniform(1,screenSize[1])
+        self.xdir = random.uniform(100,screenSize[0]-100)
+        self.ydir = random.uniform(100,screenSize[1]-100)
 
     def getPosition(self):
         return (self.xdir,self.ydir)
@@ -119,13 +123,13 @@ def game(bike1,bike2):
     gameover = False
     roundNum = 0
     while True:
-        clock.tick(20)
+        clock.tick(40)
         pygame.mouse.set_visible(False)
         for event in pygame.event.get():
             if event.type == pygame.QUIT:
                 return False
 
-        bgi = pygame.image.load('BlackBackground.gif')
+        bgi = pygame.image.load(background)
         screen.blit(bgi, (0, 0))
         if not gameover:
 
@@ -175,7 +179,7 @@ def game(bike1,bike2):
 
 
         player1Score = "player1 score:"+ bike1.score.__str__()
-        player1Score_X_possition = screenSize[0]/3 - (getTextSize(player1Score))[0]/2-150
+        player1Score_X_possition = screenSize[0]/3 - (maenuFont.size(player1Score))[0]/2-150
         screen.blit(myfont.render(player1Score,1,(255,100,0)), (player1Score_X_possition, 20))
 
         player2Score = "player2 score:"+ bike2.score.__str__()
@@ -198,21 +202,25 @@ def game(bike1,bike2):
 
 def menu():
     pygame.mouse.set_visible(True)
-    bgi = pygame.image.load('BlackBackground.gif')
+    bgi = pygame.image.load(background_menu)
     screen.blit(bgi, (0, 0))
     pygame.display.flip()
     clock = pygame.time.Clock()
     while True:
         clock.tick(20)
-        startText = "START NEW GAME!!!"
-        startText_X_possition = screenSize[0]/2 - (getTextSize(startText))[0]/2
-        sng = screen.blit(myfont.render(startText,1,(155,100,30)), (startText_X_possition, 100))
+        startText = "START GAME"
+        startText_X_possition = 2*screenSize[0]/3 - (getTextSize(startText))[0]/2+100
+        sng = screen.blit(maenuFont.render(startText,1,(155,100,30)), (startText_X_possition, 150))
 
         for ev in pygame.event.get():
-            if ev.type == pygame.MOUSEBUTTONUP:
-                if sng.collidepoint(pygame.mouse.get_pos()):
+            if sng.collidepoint(pygame.mouse.get_pos()):
+                sng = screen.blit(maenuFont.render(startText,1,(55,100,30)), (startText_X_possition, 150))
+                if ev.type == pygame.MOUSEBUTTONUP:
                     return NEW_GAME
-        bgi = pygame.image.load('BlackBackground.gif')
+        bgi = pygame.image.load(background)
+
+        if pygame.key.get_pressed()[pygame.K_ESCAPE]:
+            return QUIT
         pygame.display.flip()
 
 
@@ -220,18 +228,15 @@ def main():
 
     while True:
         ret = menu()
-        #bgi = pygame.image.load('BlackBackground.gif')
 
         if ret == NEW_GAME:
             bike1 = Bike(player1Color,Sensors())
             bike2 = Bike(player2Color,Sensors())
             var = game(bike1,bike2)
-        #elif ret =
-
+        elif ret == QUIT:
+            break;
 
     pygame.mouse.set_visible(True)
-
-
 
 
 if __name__ == "__main__":
