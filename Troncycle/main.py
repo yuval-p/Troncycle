@@ -7,7 +7,7 @@ pygame.init()
 
 
 #settings
-screenSize = [1920,1080]
+screenSize = [800,600]
 numOfTurns = 5
 player1Color = [(0, 0, 255),(255, 0,0)]
 player2Color = [(255, 0,0),(0, 0, 255)]
@@ -23,7 +23,7 @@ NEW_GAME = 3
 myfont = pygame.font.SysFont("monospace", 30)
 maenuFont = pygame.font.SysFont("monospace", 70)
 
-screen = pygame.display.set_mode(screenSize,pygame.FULLSCREEN)
+screen = pygame.display.set_mode(screenSize)
 
 # TODO change to the sensors input..
 def keyPress(sensor1,sensor2):
