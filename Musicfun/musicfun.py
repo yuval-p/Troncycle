@@ -56,7 +56,12 @@ def keyPress(sensor1,sensor2):
         sensor2.SetSpeed(sensor2.Speed - SpeedChange)
 
 
-
+def feedback(songVolume, noiseVolume):
+    if noiseVolume > 80:
+        return Ui.out_of_sync
+    if songVolume > 170:
+        return Ui.awesome
+    return Ui.pedal_faster
 
 def game(bike1,bike2):
     clock = pygame.time.Clock()
@@ -65,6 +70,8 @@ def game(bike1,bike2):
     song = AudioController.setup_player()
     noise = AudioController.setup_noise()
 
+    t = 0
+
     while True:
         clock.tick(20)
         # pygame.mouse.set_visible(False)
@@ -72,14 +79,25 @@ def game(bike1,bike2):
             if event.type == pygame.QUIT:
                 return False
 
-        bgi = pygame.image.load(Ui.background)
+        bgi = pygame.image.load(Ui.BlackBackground)
+        #resizedBackground = pygame.transform.scale(bgi, (Ui.screenX, Ui.screenY))
         Ui.screen.blit(bgi, (0, 0))
 
         keyPress(bike1.sensors,bike2.sensors)
 
         print("vel1, vel2" + "(" + (str)(bike1.sensors.Speed) + ", " + (str)(bike2.sensors.Speed) + ")");
+
+        Ui.draw_player_speed("player1", Ui.RED, (int)(Ui.screenX/4),(int)(Ui.screenY*5/6),bike1.sensors.Speed,Ui.screen)
+        Ui.draw_player_speed("player2", Ui.GREEN, (int)(Ui.screenX*3/4),(int)(Ui.screenY*5/6),bike2.sensors.Speed,Ui.screen)
+
         songVolume = (int)(CalcSongVolume(bike1.sensors.Speed, bike2.sensors.Speed));
         noiseVolume = (int)(CalcNoiseVolume(bike1.sensors.Speed, bike2.sensors.Speed));
+
+        if ((int)(t / 10)) % 2 == 0:
+            feedbackImage = feedback(songVolume, noiseVolume)
+            Ui.draw_feedback(feedbackImage)
+
+        t+=1
 
         AudioController.change_volume(song, songVolume);
         AudioController.change_volume(noise, noiseVolume);
