@@ -1,7 +1,5 @@
 import serial
 
-# ser = serial.Serial("COM3", 115200)
-
 ser = serial.Serial(
     port='COM3',
     baudrate=115200,
