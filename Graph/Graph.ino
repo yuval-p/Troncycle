@@ -26,15 +26,15 @@
  http://www.arduino.cc/en/Tutorial/Graph
  */
  
-const int ozPin = 2;     // the number of the pushbutton pin
+const int HallEffectPin = 2;         // the number of the pushbutton pin
 const int ledPin =  13;      // the number of the LED pin
 
-int ozState = 0;
-int ozlastState = 0;
+int MagnetState = 0;
+int PrevMagnetState = 0;
 float WheelRpm;
 float PreviousTime = 0;
 float MinutesForRound = 0;
-float sec_since_last_change;
+float SecondsSinceLastChange;
 float TimeSinceStart;
 
 void setup() 
@@ -45,19 +45,19 @@ void setup()
     PreviousTime = 0;
     
     MinutesForRound = 0;
-    sec_since_last_change=0;
+    SecondsSinceLastChange = 0;
     
     Serial.begin(115200);
     pinMode(ledPin, OUTPUT);
     
     // Initialize the pushbutton pin as an input:
-    pinMode(ozPin, INPUT);
+    pinMode(HallEffectPin, INPUT);
 }
 
 void loop() 
 {   
     // send the value of analog input 0:
-    ozState = digitalRead(ozPin);
+    MagnetState = digitalRead(HallEffectPin);
     Serial.println(analogRead(A0));
     
     // wait a bit for the analog-to-digital converter
@@ -65,7 +65,7 @@ void loop()
     
     TimeSinceStart = millis();
     
-    if (ozState != ozlastState)
+    if (MagnetState != PrevMagnetState)
     {  
         MinutesForRound = (TimeSinceStart - PreviousTime) / (60.0 * 1000);
         
@@ -74,13 +74,13 @@ void loop()
         
         WheelRpm = 1/MinutesForRound;
         PreviousTime = TimeSinceStart;
-        ozlastState = ozState;
+        PrevMagnetState = MagnetState;
     }
     else 
     {
-       sec_since_last_change = (TimeSinceStart - PreviousTime)/(60.0*1000);
+       SecondsSinceLastChange = (TimeSinceStart - PreviousTime)/(60.0*1000);
        
-       if (sec_since_last_change>MinutesForRound * 3)
+       if (SecondsSinceLastChange > MinutesForRound * 3)
        {
            WheelRpm = 0;
        }
@@ -88,7 +88,7 @@ void loop()
  
     Serial.println((int)WheelRpm);
 
-    if (ozState == HIGH) 
+    if (MagnetState == HIGH) 
     {
         // turn LED on:
         digitalWrite(ledPin, HIGH);
