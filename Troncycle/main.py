@@ -178,12 +178,14 @@ def game(bike1,bike2):
                     return END_GAME
 
 
+        Xoffset = 20;
+
         player1Score = "player1 score:"+ bike1.score.__str__()
-        player1Score_X_possition = screenSize[0]/3 - (maenuFont.size(player1Score))[0]/2-150
+        player1Score_X_possition = Xoffset
         screen.blit(myfont.render(player1Score,1,(255,100,0)), (player1Score_X_possition, 20))
 
         player2Score = "player2 score:"+ bike2.score.__str__()
-        player2Score_X_possition = 2*screenSize[0]/3 - (getTextSize(player2Score))[0]/2+150
+        player2Score_X_possition = screenSize[0] - (getTextSize(player2Score))[0] - Xoffset
         screen.blit(myfont.render(player2Score,1,(255,100,0)), (player2Score_X_possition, 20))
 
         roundNumText = "round: "+ (roundNum+1).__str__()
@@ -203,7 +205,9 @@ def game(bike1,bike2):
 def menu():
     pygame.mouse.set_visible(True)
     bgi = pygame.image.load(background_menu)
-    screen.blit(bgi, (0, 0))
+    resizedBackground = pygame.transform.scale(bgi, (screenSize[0], screenSize[1]))
+    screen.blit(resizedBackground, (0, 0))
+
     pygame.display.flip()
     clock = pygame.time.Clock()
     while True:
