@@ -34,17 +34,19 @@ def keyPress(sensor1,sensor2):
 
 
     
-    if pygame.key.get_pressed()[pygame.K_LEFT]:
-         sensor1.setAngle(-5)
-    if pygame.key.get_pressed()[pygame.K_RIGHT]:
-         sensor1.setAngle(5)
-    if pygame.key.get_pressed()[pygame.K_UP]:
-        sensor1.setSpeed(1)
-    if pygame.key.get_pressed()[pygame.K_DOWN]:
-        sensor1.setSpeed(-1)
+    #if pygame.key.get_pressed()[pygame.K_LEFT]:
+    #     sensor1.setAngle(-5)
+    #if pygame.key.get_pressed()[pygame.K_RIGHT]:
+    #     sensor1.setAngle(5)
+    #if pygame.key.get_pressed()[pygame.K_UP]:
+    #    sensor1.setSpeed(1)
+    #if pygame.key.get_pressed()[pygame.K_DOWN]:
+    #    sensor1.setSpeed(-1)
 
-    sensor2.setAngle(sensorInput.getAngle1())
-    sensor2.setSpeed(sensorInput.getSpeed1())
+    sensor1.setAngle(sensorInput.getAngle1())
+    sensor1.setSpeed(sensorInput.getSpeed1())
+    sensor2.setAngle(sensorInput.getAngle2())
+    sensor2.setSpeed(sensorInput.getSpeed2())
     #if pygame.key.get_pressed()[pygame.K_a]:
      #    sensor2.setAngle(-5)
     #if pygame.key.get_pressed()[pygame.K_d]:
@@ -265,7 +267,7 @@ def main():
         ret = menu()
 
         if ret == NEW_GAME:
-            bike1 = Bike(player1Color,Sensors())
+            bike1 = Bike(player1Color,Sensors2())
             bike2 = Bike(player2Color,Sensors2())
             var = game(bike1,bike2)
         elif ret == QUIT:

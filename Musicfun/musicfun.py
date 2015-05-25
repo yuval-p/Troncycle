@@ -63,7 +63,7 @@ def keyPress(sensor1,sensor2):
     sensor1.SetAngle(sensorInput.getAngle1())
     sensor1.SetSpeed(sensorInput.getSpeed1()*2*math.pi*60*30/(1000* 100))
     sensor2.SetAngle(sensorInput.getAngle2())
-    sensor2.SetSpeed(sensorInput.getSpeed2())
+    sensor2.SetSpeed(sensorInput.getSpeed2()*2*math.pi*60*32/(1000* 100))
 
     #print(sensorInput.getSpeed1())
 

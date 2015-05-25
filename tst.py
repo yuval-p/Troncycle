@@ -65,10 +65,10 @@ class sensor_input():
                 elif char == b'\n':
                     if ReceivingSensor == 1:
                         self.ANGLE1 = ReceivedNumber
-                        #print("Real " + (str)(ReceivedNumber))
+                        print("Real " + (str)(ReceivedNumber))
                     elif ReceivingSensor == 2:
                         self.ANGLE2 = ReceivedNumber
-                        #print(ReceivedNumber)
+                        print(ReceivedNumber)
                     elif ReceivingSensor == 3:
                         mean = CalcMean(Speed1Samples, ReceivedNumber)
                         #print(Speed1Samples[Count-1])
