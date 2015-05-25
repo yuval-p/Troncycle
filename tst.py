@@ -1,47 +1,105 @@
 import serial
+from array import array
 
-ser = serial.Serial(
-    port='COM3',
-    baudrate=115200,
-    parity=serial.PARITY_ODD,
-    stopbits=serial.STOPBITS_TWO,
-    bytesize=serial.SEVENBITS
-)
+Count = 10
 
-print("connected to: " + ser.portstr)
+Speed1Samples = array("i", [0, 0, 0, 0, 0, 0, 0, 0, 0, 0])
+Speed2Samples = array("i", [0, 0, 0, 0, 0, 0, 0, 0, 0, 0])
 
-OldAngle = 1024
-OldSpeed = 0
+class sensor_input():
 
-ReceivedNumber = 0
+    ANGLE1 = 0
+    ANGLE2 = 0
+    SPEED1 = 0
+    SPEED2 = 0
+    ser = 0
 
-# Angle is received first
-ReceivingAngle = True
+    def __init__(self):
+        self.speed = 1
+        self.angle = 0
+        self.initSensor()
 
-while True:
-    char = ser.read()
+    def getSpeed1(self):
+        return self.SPEED1
 
-    if (char != b'\r') & (char != b'\n'):
-        ReceivedNumber = ReceivedNumber * 10 + float(char)
-    if char == b'\n':
-        if ReceivingAngle:
-            # if (abs(ReceivedNumber - OldAngle) < 100):
-            # print("angle: ", line)
+    def getAngle1(self):
+        return self.ANGLE1
 
-            # if (abs(ReceivedNumber - OldAngle) > 100):
-            # print("bad angle")
-            # exit()
-            old_angle = ReceivedNumber
-        else:
-            if (abs(ReceivedNumber - OldSpeed) < 100):
-                print("speed: ", ReceivedNumber)
-                x = 0
-            # if (abs(ReceivedNumber - OldSpeed) > 100):
-            #    print("bad speed")
-            #    exit()
-            old_speed = ReceivedNumber
+    def getSpeed2(self):
+        return self.SPEED2
 
-        # Toggling the received parameter
-        ReceivingAngle = not ReceivingAngle
+    def getAngle2(self):
+        return self.ANGLE2
+
+    def initSensor(self):
+        self.ser = serial.Serial(
+            port='COM26',
+            baudrate=115200,
+            parity=serial.PARITY_ODD,
+            stopbits=serial.STOPBITS_TWO,
+            bytesize=serial.SEVENBITS
+        )
+
+        print("connected to: " + self.ser.portstr)
+
+    def start_sensor(self):
+
+        OldAngle = 1024
+        OldSpeed = 0
+
         ReceivedNumber = 0
-ser.close()
+
+        # Angle is received first
+        ReceivingSensor = 0
+        StartReading = False
+
+        while True:
+            char = self.ser.read()
+            if (char == b'*'):
+                ReceivingSensor = 0
+                ReceivedNumber = 0
+                StartReading = True
+            elif (StartReading):
+                if (char != b'\r') & (char != b'\n'):
+                    ReceivedNumber = ReceivedNumber * 10 + float(char)
+                elif char == b'\n':
+                    if ReceivingSensor == 1:
+                        self.ANGLE1 = ReceivedNumber
+                        #print("Real " + (str)(ReceivedNumber))
+                    elif ReceivingSensor == 2:
+                        self.ANGLE2 = ReceivedNumber
+                        #print(ReceivedNumber)
+                    elif ReceivingSensor == 3:
+                        mean = CalcMean(Speed1Samples, ReceivedNumber)
+                        print(Speed1Samples[Count-1])
+                        self.SPEED1 = mean
+                    elif ReceivingSensor == 4:
+                        mean = CalcMean(Speed2Samples, ReceivedNumber)
+                        self.SPEED2 = mean
+                        #print(ReceivedNumber)
+                        StartReading = False
+
+                    # incrementing receiving sensor
+                    ReceivingSensor = (ReceivingSensor + 1) % 5
+                    ReceivedNumber = 0
+
+def CalcMean(arr, newNum):
+    for i in range(0, Count-1):
+        arr[i] = arr[i+1]
+
+    arr[Count-1] = (int)(newNum)
+
+    sum = 0;
+
+    for num in arr:
+        sum = sum + num
+
+    result = sum/len(arr)
+
+    return result
+
+#def stop(self):
+  #  ser.close() TODO
+bla = sensor_input()
+
+bla.start_sensor()

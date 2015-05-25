@@ -26,69 +26,73 @@
  http://www.arduino.cc/en/Tutorial/Graph
  */
  
-const int HallEffectPin = 2;         // the number of the pushbutton pin
+const int HallEffectPin1 = 2;         // the number of the pushbutton pin
+const int HallEffectPin2 = 4;         // the number of the pushbutton pin
 const int ledPin =  13;      // the number of the LED pin
 
-int MagnetState = 0;
-int PrevMagnetState = 0;
-float WheelRpm;
-float PreviousTime = 0;
-float MinutesForRound = 0;
-float SecondsSinceLastChange;
 float TimeSinceStart;
+
+int Magnet1State = 0;
+int PrevMagnet1State = 0;
+float Wheel1Rpm;
+float PreviousTime1 = 0;
+float MinutesForRound1 = 0;
+float SecondsSinceLastChange1 = 0;
+
+
+int Magnet2State = 0;
+int PrevMagnet2State = 0;
+float Wheel2Rpm;
+float PreviousTime2 = 0;
+float MinutesForRound2 = 0;
+float SecondsSinceLastChange2 = 0;
 
 void setup() 
 {
     // Initialize Parameters
-    WheelRpm = 0;
+    Wheel1Rpm = 0;
     TimeSinceStart = 0;
-    PreviousTime = 0;
+    PreviousTime1 = 0;
     
-    MinutesForRound = 0;
-    SecondsSinceLastChange = 0;
+    MinutesForRound1 = 0;
+    SecondsSinceLastChange1 = 0;
     
     Serial.begin(115200);
     pinMode(ledPin, OUTPUT);
     
     // Initialize the pushbutton pin as an input:
-    pinMode(HallEffectPin, INPUT);
+    pinMode(HallEffectPin1, INPUT);
+    
+    pinMode(HallEffectPin2, INPUT);
 }
 
 void loop() 
 {   
-    // send the value of analog input 0:
-    MagnetState = digitalRead(HallEffectPin);
+    // send * to signal header of sensors values
+    Serial.println("*");
+  
+    // send the value of analog input 0 (potentiometer 1)
     Serial.println(analogRead(A0));
     
-    // wait a bit for the analog-to-digital converter
-    // to stabilize after the last reading:
+    // send the value of analog input 0 (potentiometer 2)
+//    Serial.println(analogRead(A2));
+    Serial.println((int)512);
+    
+    Magnet1State = digitalRead(HallEffectPin1);    
+    Magnet2State = digitalRead(HallEffectPin2);    
+    delay(2);
     
     TimeSinceStart = millis();
     
-    if (MagnetState != PrevMagnetState)
-    {  
-        MinutesForRound = (TimeSinceStart - PreviousTime) / (60.0 * 1000);
-        
-        // Multiple by 2 since we have 2 magnets
-        MinutesForRound = MinutesForRound * 2;
-        
-        WheelRpm = 1/MinutesForRound;
-        PreviousTime = TimeSinceStart;
-        PrevMagnetState = MagnetState;
-    }
-    else 
-    {
-       SecondsSinceLastChange = (TimeSinceStart - PreviousTime)/(60.0*1000);
-       
-       if (SecondsSinceLastChange > MinutesForRound * 3)
-       {
-           WheelRpm = 0;
-       }
-     }
- 
-    Serial.println((int)WheelRpm);
+    CalcMagnet1Speed();
+    CalcMagnet2Speed();
+    
+    Serial.println((int)Wheel1Rpm);
+    
+    Serial.println((int)20);
+    //Serial.println((int)Wheel2Rpm);
 
-    if (MagnetState == HIGH) 
+    if (Magnet1State == HIGH) 
     {
         // turn LED on:
         digitalWrite(ledPin, HIGH);
@@ -97,6 +101,56 @@ void loop()
     {
         // turn LED off:
         digitalWrite(ledPin, LOW);
+    }
+}
+
+void CalcMagnet1Speed()
+{
+    if (Magnet1State != PrevMagnet1State)
+    {  
+            MinutesForRound1 = (TimeSinceStart - PreviousTime1) / (60.0 * 1000);
+        
+            // Multiple by 2 since we have 2 magnets
+             MinutesForRound1 = MinutesForRound1 * 2;
+        
+            Wheel1Rpm = 1/MinutesForRound1;
+            PreviousTime1 = TimeSinceStart;
+        
+        
+        PrevMagnet1State = Magnet1State;
+    }
+    else 
+    {
+       SecondsSinceLastChange1 = (TimeSinceStart - PreviousTime1)/(60.0 * 1000);
+       
+       if (SecondsSinceLastChange1 > MinutesForRound1 * 3)
+       {
+           Wheel1Rpm = 0;
+       }
+    }
+}
+
+void CalcMagnet2Speed()
+{
+    if (Magnet2State != PrevMagnet2State)
+    {  
+        MinutesForRound2 = (TimeSinceStart - PreviousTime2) / (60.0 * 1000);
+        
+        // Multiple by 2 since we have 2 magnets
+        MinutesForRound2 = MinutesForRound2 * 2;
+        
+        Wheel2Rpm = 1/MinutesForRound2;
+        PreviousTime2 = TimeSinceStart;
+        PrevMagnet2State = Magnet2State;
+    }
+    else 
+    {
+       SecondsSinceLastChange2 = (TimeSinceStart - PreviousTime2)/(60.0 * 1000);
+       
+       if (SecondsSinceLastChange2 > MinutesForRound2 * 3)
+       {
+           Wheel2Rpm = 0;
+       }
     }
 }
 

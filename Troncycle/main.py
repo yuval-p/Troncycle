@@ -2,15 +2,19 @@ import random
 import pygame
 import math
 import time
+import threading
+import tst
 
 pygame.init()
-
 
 #settings
 screenSize = [800,600]
 numOfTurns = 5
 player1Color = [(0, 0, 255),(255, 0,0)]
 player2Color = [(255, 0,0),(0, 0, 255)]
+sensorInput = tst.sensor_input()
+
+
 
 background = 'tron-backgrounds.jpg'
 background_menu = 'tron-menus.jpg'
@@ -27,6 +31,9 @@ screen = pygame.display.set_mode(screenSize)
 
 # TODO change to the sensors input..
 def keyPress(sensor1,sensor2):
+
+
+    
     if pygame.key.get_pressed()[pygame.K_LEFT]:
          sensor1.setAngle(-5)
     if pygame.key.get_pressed()[pygame.K_RIGHT]:
@@ -36,16 +43,17 @@ def keyPress(sensor1,sensor2):
     if pygame.key.get_pressed()[pygame.K_DOWN]:
         sensor1.setSpeed(-1)
 
-
-    if pygame.key.get_pressed()[pygame.K_a]:
-         sensor2.setAngle(-5)
-    if pygame.key.get_pressed()[pygame.K_d]:
-         sensor2.setAngle(5)
-    if pygame.key.get_pressed()[pygame.K_w]:
-        sensor2.setSpeed(1)
-    if pygame.key.get_pressed()[pygame.K_s]:
-        sensor2.setSpeed(-1)
-
+    sensor2.setAngle(sensorInput.getAngle1())
+    sensor2.setSpeed(sensorInput.getSpeed1())
+    #if pygame.key.get_pressed()[pygame.K_a]:
+     #    sensor2.setAngle(-5)
+    #if pygame.key.get_pressed()[pygame.K_d]:
+     #    sensor2.setAngle(5)
+    #if pygame.key.get_pressed()[pygame.K_w]:
+    #    sensor2.setSpeed(1)
+    #if pygame.key.get_pressed()[pygame.K_s]:
+    #    sensor2.setSpeed(-1)
+    
 
 def findCollision(bikePosition,bike,rival):
     if bike.prev_pos.__len__()-20 < 0:
@@ -73,6 +81,7 @@ class Sensors():
         self.angle += direction
         self.angle %= 360
 
+
     def setSpeed(self,acceleration):
         if acceleration > 0 and  self.speed < 10:
             self.speed += 1
@@ -83,6 +92,25 @@ class Sensors():
         self.speed = 1
         self.angle = random.uniform(0,360)
 
+class Sensors2():
+    def __init__(self):
+        self.speed = 1
+        self.angle = 0
+
+    def setAngle(self, direction):
+        self.angle =  self.angle + (direction -512)/20
+        self.angle %= 360
+        #print(direction)
+
+    def setSpeed(self,acceleration):
+        self.speed = max(acceleration/20 ,1)
+        self.speed =  min (15, self.speed)
+
+
+
+    def reset(self):
+        self.speed = 1
+        self.angle = 0
 
 
 class Bike():
@@ -119,20 +147,23 @@ def getTextSize(text):
 
 
 def game(bike1,bike2):
+    sensorThread = threading.Thread(target=sensorInput.start_sensor, args = ())
+    sensorThread.daemon = True
+    sensorThread.start()
     clock = pygame.time.Clock()
     gameover = False
     roundNum = 0
     while True:
-        clock.tick(40)
-        pygame.mouse.set_visible(False)
+        clock.tick(300)
+        pygame.mouse.set_visible(True)
         for event in pygame.event.get():
             if event.type == pygame.QUIT:
                 return False
 
         bgi = pygame.image.load(background)
-        screen.blit(bgi, (0, 0))
+        #print(sensorInput.getAngle())
         if not gameover:
-
+            screen.blit(bgi, (0, 0))
             keyPress(bike1.sensors,bike2.sensors)
             bike1.update()
             bike2.update()
@@ -235,13 +266,13 @@ def main():
 
         if ret == NEW_GAME:
             bike1 = Bike(player1Color,Sensors())
-            bike2 = Bike(player2Color,Sensors())
+            bike2 = Bike(player2Color,Sensors2())
             var = game(bike1,bike2)
         elif ret == QUIT:
             break;
 
     pygame.mouse.set_visible(True)
-
+    sensorInput.stop()
 
 if __name__ == "__main__":
     main()
