@@ -71,7 +71,7 @@ class sensor_input():
                         #print(ReceivedNumber)
                     elif ReceivingSensor == 3:
                         mean = CalcMean(Speed1Samples, ReceivedNumber)
-                        print(Speed1Samples[Count-1])
+                        #print(Speed1Samples[Count-1])
                         self.SPEED1 = mean
                     elif ReceivingSensor == 4:
                         mean = CalcMean(Speed2Samples, ReceivedNumber)
@@ -100,6 +100,6 @@ def CalcMean(arr, newNum):
 
 #def stop(self):
   #  ser.close() TODO
-bla = sensor_input()
+#bla = sensor_input()
 
-bla.start_sensor()
+#bla.start_sensor()
