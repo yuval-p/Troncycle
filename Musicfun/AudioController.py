@@ -3,11 +3,11 @@ __author__ = 'guy'
 
 import vlc
 
-def setup_player():
+def setup_player(player_song):
 
     vlc_instance = vlc.Instance("no-one-instance")
 
-    media = vlc_instance.media_new("1.mp3")
+    media = vlc_instance.media_new(str(player_song) + '.mp3')
     player = vlc_instance.media_player_new()
     player.set_media(media)
     player.play()

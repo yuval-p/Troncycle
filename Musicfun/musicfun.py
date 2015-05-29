@@ -16,21 +16,23 @@ import math
 sensorInput = tst.sensor_input()
 
 def CalcSongVolume(vel1, vel2):
-    MaxVelocity = 30;
     avgVel = (vel1 + vel2)/2;
 
-    songVolume = avgVel/MaxVelocity*200;
+    songVolume = avgVel/Ui.MAX_SPEED*200;
+
+    songVolume = min(200, songVolume)
     #print("songVolume: " + (str)(songVolume));
     return songVolume;
 
 def CalcNoiseVolume(vel1, vel2):
-    MaxVelocity = 30;
     gap = abs(vel1 - vel2);
 
     #print("gap: " + (str)(gap));
-    correlation = gap/MaxVelocity;
+    correlation = 7 * gap/Ui.MAX_SPEED;
 
     noiseVolume = correlation*200;
+
+    noiseVolume = min(200, noiseVolume)
 
     if (vel1 <= 5 and vel2 <= 5):
             noiseVolume = 50;
@@ -65,8 +67,6 @@ def keyPress(sensor1,sensor2):
     sensor2.SetAngle(sensorInput.getAngle2())
     sensor2.SetSpeed(sensorInput.getSpeed2()*2*math.pi*60*32/(1000* 100))
 
-    #print(sensorInput.getSpeed1())
-
 def feedback(songVolume, noiseVolume):
     if noiseVolume > 80:
         return Ui.out_of_sync
@@ -74,14 +74,15 @@ def feedback(songVolume, noiseVolume):
         return Ui.awesome
     return Ui.pedal_faster
 
-def game(bike1,bike2):
+def game(bike1,bike2,song):
+    clock = pygame.time.Clock()
     sensorThread = threading.Thread(target=sensorInput.start_sensor, args = ())
     sensorThread.daemon = True
     sensorThread.start()
-    clock = pygame.time.Clock()
+
     roundNum = 0
 
-    song = AudioController.setup_player()
+    song = AudioController.setup_player(song)
     noise = AudioController.setup_noise()
 
     t = 0
@@ -94,8 +95,8 @@ def game(bike1,bike2):
                 return False
 
         bgi = pygame.image.load(Ui.BlackBackground)
-        #resizedBackground = pygame.transform.scale(bgi, (Ui.screenX, Ui.screenY))
-        Ui.screen.blit(bgi, (0, 0))
+        resizedBackground = pygame.transform.scale(bgi, (Ui.screenX, Ui.screenY))
+        Ui.screen.blit(resizedBackground, (0, 0))
 
         keyPress(bike1.sensors,bike2.sensors)
 
@@ -129,12 +130,12 @@ def main():
     while True:
         ret = Ui.menu()
 
-        if ret == Ui.NEW_GAME:
+        if ret == Ui.QUIT:
+            break;
+        else:
             bike1 = Bike.Bike(Sensors.Sensors())
             bike2 = Bike.Bike(Sensors.Sensors())
-            var = game(bike1,bike2)
-        elif ret == Ui.QUIT:
-            break;
+            game(bike1,bike2,ret)
 
     pygame.mouse.set_visible(True)
 

@@ -4,19 +4,19 @@ import math
 import time
 import threading
 import tst
+import vlc
 
 pygame.init()
 
 #settings
-screenSize = [800,600]
+screenSize = [1280,768]
 numOfTurns = 5
 player1Color = [(0, 0, 255),(255, 0,0)]
 player2Color = [(255, 0,0),(0, 0, 255)]
-sensorInput = tst.sensor_input()
+#sensorInput = tst.sensor_input()
 
 
-
-background = 'tron-backgrounds.jpg'
+background = 'BlackBackground.gif'
 background_menu = 'tron-menus.jpg'
 
 
@@ -27,34 +27,37 @@ NEW_GAME = 3
 myfont = pygame.font.SysFont("monospace", 30)
 maenuFont = pygame.font.SysFont("monospace", 70)
 
-screen = pygame.display.set_mode(screenSize)
+#screen = pygame.display.set_mode(screenSize)
+screen = pygame.display.set_mode(screenSize,pygame.FULLSCREEN)
 
 # TODO change to the sensors input..
 def keyPress(sensor1,sensor2):
 
 
     
-    #if pygame.key.get_pressed()[pygame.K_LEFT]:
-    #     sensor1.setAngle(-5)
-    #if pygame.key.get_pressed()[pygame.K_RIGHT]:
-    #     sensor1.setAngle(5)
-    #if pygame.key.get_pressed()[pygame.K_UP]:
-    #    sensor1.setSpeed(1)
-    #if pygame.key.get_pressed()[pygame.K_DOWN]:
-    #    sensor1.setSpeed(-1)
+    if pygame.key.get_pressed()[pygame.K_LEFT]:
+         sensor1.setAngle(-5)
+    if pygame.key.get_pressed()[pygame.K_RIGHT]:
+         sensor1.setAngle(5)
+    if pygame.key.get_pressed()[pygame.K_UP]:
+        sensor1.setSpeed(1)
+    if pygame.key.get_pressed()[pygame.K_DOWN]:
+        sensor1.setSpeed(-1)
 
-    sensor1.setAngle(sensorInput.getAngle1())
-    sensor1.setSpeed(sensorInput.getSpeed1())
-    sensor2.setAngle(sensorInput.getAngle2())
-    sensor2.setSpeed(sensorInput.getSpeed2())
-    #if pygame.key.get_pressed()[pygame.K_a]:
-     #    sensor2.setAngle(-5)
-    #if pygame.key.get_pressed()[pygame.K_d]:
-     #    sensor2.setAngle(5)
-    #if pygame.key.get_pressed()[pygame.K_w]:
-    #    sensor2.setSpeed(1)
-    #if pygame.key.get_pressed()[pygame.K_s]:
-    #    sensor2.setSpeed(-1)
+#    sensor1.setAngle(sensorInput.getAngle1())
+#    sensor1.setSpeed(sensorInput.getSpeed1())
+#    print(sensorInput.getSpeed2())
+#    print(sensorInput.getSpeed1())
+#    sensor2.setAngle(sensorInput.getAngle2())
+#    sensor2.setSpeed(sensorInput.getSpeed2())
+    if pygame.key.get_pressed()[pygame.K_a]:
+         sensor2.setAngle(-5)
+    if pygame.key.get_pressed()[pygame.K_d]:
+         sensor2.setAngle(5)
+    if pygame.key.get_pressed()[pygame.K_w]:
+        sensor2.setSpeed(1)
+    if pygame.key.get_pressed()[pygame.K_s]:
+        sensor2.setSpeed(-1)
     
 
 def findCollision(bikePosition,bike,rival):
@@ -94,19 +97,29 @@ class Sensors():
         self.speed = 1
         self.angle = random.uniform(0,360)
 
+Player1Start = 524
+Player2Start = 512
+
 class Sensors2():
-    def __init__(self):
+    def __init__(self, playerNum):
         self.speed = 1
         self.angle = 0
+        self.playerNum = playerNum
 
     def setAngle(self, direction):
-        self.angle =  self.angle + (direction -512)/20
+
+        if (self.playerNum == 1):
+            offset = Player1Start
+        else:
+            offset = Player2Start
+
+        self.angle =  self.angle + (direction - offset)/34
         self.angle %= 360
         #print(direction)
 
     def setSpeed(self,acceleration):
         self.speed = max(acceleration/20 ,1)
-        self.speed =  min (15, self.speed)
+        self.speed =  min (13, self.speed)
 
 
 
@@ -149,10 +162,19 @@ def getTextSize(text):
 
 
 def game(bike1,bike2):
-    sensorThread = threading.Thread(target=sensorInput.start_sensor, args = ())
-    sensorThread.daemon = True
-    sensorThread.start()
+#    sensorThread = threading.Thread(target=sensorInput.start_sensor, args = ())
+#    sensorThread.daemon = True
+#    sensorThread.start()
     clock = pygame.time.Clock()
+
+    vlc_instance = vlc.Instance("no-one-instance --input-repeat=999999")
+
+    media = vlc_instance.media_new('sound.mp3')
+    player = vlc_instance.media_player_new()
+    player.set_media(media)
+    player.play()
+    player.audio_set_volume(100)
+
     gameover = False
     roundNum = 0
     while True:
@@ -163,9 +185,12 @@ def game(bike1,bike2):
                 return False
 
         bgi = pygame.image.load(background)
+        resizedBackground = pygame.transform.scale(bgi, (screenSize[0], screenSize[1]))
+
         #print(sensorInput.getAngle())
         if not gameover:
-            screen.blit(bgi, (0, 0))
+            screen.blit(resizedBackground, (0, 0))
+
             keyPress(bike1.sensors,bike2.sensors)
             bike1.update()
             bike2.update()
@@ -196,11 +221,11 @@ def game(bike1,bike2):
 
             loseText = "player"+ loose.__str__()+" lose"
             loseText_X_position = screenSize[0]/2 - (getTextSize(loseText))[0]/2
-            screen.blit(myfont.render(loseText,1,(255,255,0)), (loseText_X_position, 300))
+            screen.blit(myfont.render(loseText,1,(0,0,0)), (loseText_X_position, 300))
 
             press2Cont ="Press space to continue"
             press2Cont_X_possition = screenSize[0]/2 - (getTextSize(press2Cont))[0]/2
-            screen.blit(myfont.render(press2Cont,1,(255,255,0)), (press2Cont_X_possition, 500))
+            screen.blit(myfont.render(press2Cont,1,(0,0,0)), (press2Cont_X_possition, 500))
 
             if pygame.key.get_pressed()[pygame.K_SPACE]:
                 gameover = False
@@ -208,6 +233,7 @@ def game(bike1,bike2):
                 bike2.reset()
                 roundNum+=1
                 if roundNum >= numOfTurns:
+                    player.stop()
                     return END_GAME
 
 
@@ -267,8 +293,8 @@ def main():
         ret = menu()
 
         if ret == NEW_GAME:
-            bike1 = Bike(player1Color,Sensors2())
-            bike2 = Bike(player2Color,Sensors2())
+            bike1 = Bike(player1Color,Sensors())
+            bike2 = Bike(player2Color,Sensors())
             var = game(bike1,bike2)
         elif ret == QUIT:
             break;
@@ -280,3 +306,4 @@ if __name__ == "__main__":
     main()
 
         
+

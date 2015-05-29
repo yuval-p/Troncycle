@@ -65,18 +65,18 @@ class sensor_input():
                 elif char == b'\n':
                     if ReceivingSensor == 1:
                         self.ANGLE1 = ReceivedNumber
-                        print("Real " + (str)(ReceivedNumber))
+                        #print("Player1 " + (str)(ReceivedNumber))
                     elif ReceivingSensor == 2:
                         self.ANGLE2 = ReceivedNumber
-                        print(ReceivedNumber)
+                        #print("Player2 " + (str)(ReceivedNumber))
                     elif ReceivingSensor == 3:
                         mean = CalcMean(Speed1Samples, ReceivedNumber)
-                        #print(Speed1Samples[Count-1])
+                        print(mean)
                         self.SPEED1 = mean
                     elif ReceivingSensor == 4:
                         mean = CalcMean(Speed2Samples, ReceivedNumber)
                         self.SPEED2 = mean
-                        #print(ReceivedNumber)
+                        print(mean)
                         StartReading = False
 
                     # incrementing receiving sensor

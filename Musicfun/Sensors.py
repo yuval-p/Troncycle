@@ -7,7 +7,7 @@ class Sensors():
     def __init__(self):
         self.Speed = 0
         self.Angle = 0
-        self.MaxSpeed = 30
+        self.MaxSpeed = 40
 
     def SetAngle(self, direction):
         self.Angle += direction
